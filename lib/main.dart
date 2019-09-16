@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'article_richtext.dart';
+import 'package:flutter/gestures.dart';
 
 void main() => runApp(MyApp());
 
@@ -108,6 +107,57 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: SingleChildScrollView(child: ArticleRichText(words: words)),
       // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+class ArticleRichText extends StatefulWidget {
+  ArticleRichText({Key key, @required this.words}) : super(key: key);
+  final List words;
+
+  @override
+  ArticleRichTextState createState() => ArticleRichTextState();
+}
+
+class ArticleRichTextState extends State<ArticleRichText> {
+  MultiTapGestureRecognizer _getTapRecognizer(String word) {
+    if (word == "") return null;
+    return MultiTapGestureRecognizer()
+      ..longTapDelay = Duration(milliseconds: 400)
+      ..onLongTapDown = (i, detail) {
+        print("onLongTapDown");
+      }
+      ..onTap = (i) {
+        print("onTap");
+      };
+  }
+
+  bool hasLetter(String str) {
+    RegExp regHasLetter = new RegExp(r"[a-zA-Z]+");
+    return regHasLetter.hasMatch(str);
+  }
+
+  TextSpan getTextSpan(String word) {
+    return TextSpan(
+        style: TextStyle(color: Colors.black87, fontFamily: "NotoSans-Medium", fontSize: 20),
+        text: hasLetter(word) ? " " : "",
+        children: [
+          hasLetter(word)
+              ? TextSpan(text: word, recognizer: _getTapRecognizer(word))
+              : TextSpan(text: word),
+          word == "\n" ? TextSpan(text: "   ") : TextSpan(text: "")
+        ]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RichText(
+      text: TextSpan(
+        text: '   ',
+        children: widget.words.map((d) {
+          return getTextSpan(d);
+        }).toList(),
+      ),
     );
   }
 }
